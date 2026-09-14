@@ -1,10 +1,159 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>СМЕНА</title>
+    <meta charset="UTF-8">
+    <title>СМЕНА</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/crt.css">
 </head>
 <body>
-<div id="game"></div>
+    <div id="game-wrapper">
+        <div id="game">
+
+            <div class="screen" id="screen-boot">
+                <pre id="boot-text" class="mono-green"></pre>
+            </div>
+
+            <div class="screen" id="screen-menu">
+                <h1 class="title">СМЕНА</h1>
+                <p class="subtitle">НОЧНАЯ СМЕНА ОПЕРАТОРА</p>
+                <div class="menu-buttons">
+                    <button class="menu-btn" id="btn-new">НОВАЯ СМЕНА</button>
+                    <button class="menu-btn" id="btn-continue">ПРОДОЛЖИТЬ (НОЧЬ <span id="save-night">1</span>)</button>
+                    <button class="menu-btn" id="btn-controls">УПРАВЛЕНИЕ</button>
+                    <button class="menu-btn" id="btn-about">О ИГРЕ</button>
+                </div>
+            </div>
+
+            <div class="screen" id="screen-controls">
+                <h2>УПРАВЛЕНИЕ</h2>
+                <pre class="mono-yellow">
+1-4             — переключение камер
+Клик по камере  — выбор активной камеры
+Клик по аномалии — зафиксировать
+A / Ф           — левая дверь
+D / В           — правая дверь
+F / А           — свет
+Esc             — пауза
+                </pre>
+                <button class="menu-btn" id="btn-back-controls">НАЗАД</button>
+            </div>
+
+            <div class="screen" id="screen-about">
+                <h2>О ИГРЕ</h2>
+                <pre class="mono-yellow">
+СМЕНА — хоррор о ночном операторе.
+Следи за камерами. Фиксируй аномалии.
+Не смотри слишком долго в одну точку.
+Переживи 12 ночей.
+                </pre>
+                <button class="menu-btn" id="btn-back-about">НАЗАД</button>
+            </div>
+
+            <div class="screen" id="screen-intro">
+                <pre id="intro-text" class="mono-yellow"></pre>
+                <button class="menu-btn" id="btn-start-shift">НАЧАТЬ СМЕНУ</button>
+            </div>
+
+            <div class="screen" id="screen-playing">
+                <div id="hud">
+                    <span id="hud-night">НОЧЬ 1</span>
+                    <span id="hud-time">00:00</span>
+                    <div id="energy-container">
+                        <span class="energy-label">ЭНЕРГИЯ</span>
+                        <div id="energy-bar"><div id="energy-fill"></div></div>
+                    </div>
+                </div>
+
+                <div id="play-area">
+                    <div id="cam-view">
+                        <canvas id="active-cam" width="640" height="480"></canvas>
+                        <div id="cam-label">CAM 1</div>
+                    </div>
+
+                    <div id="cam-grid">
+                        <div class="cam-slot active">
+                            <canvas id="mini-1" width="200" height="120"></canvas>
+                            <span>CAM 1</span>
+                        </div>
+                        <div class="cam-slot">
+                            <canvas id="mini-2" width="200" height="120"></canvas>
+                            <span>CAM 2</span>
+                        </div>
+                        <div class="cam-slot">
+                            <canvas id="mini-3" width="200" height="120"></canvas>
+                            <span>CAM 3</span>
+                        </div>
+                        <div class="cam-slot">
+                            <canvas id="mini-4" width="200" height="120"></canvas>
+                            <span>CAM 4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="control-panel">
+                    <button class="door-btn" id="btn-door-left">
+                        ЛЕВАЯ ДВЕРЬ
+                        <div class="btn-indicator"><div class="btn-indicator-fill"></div></div>
+                    </button>
+                    <button class="light-btn" id="btn-light">
+                        СВЕТ
+                        <div class="btn-indicator"><div class="btn-indicator-fill"></div></div>
+                    </button>
+                    <button class="door-btn" id="btn-door-right">
+                        ПРАВАЯ ДВЕРЬ
+                        <div class="btn-indicator"><div class="btn-indicator-fill"></div></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="screen" id="screen-paused">
+                <h2>ПАУЗА</h2>
+                <button class="menu-btn" id="btn-resume">ПРОДОЛЖИТЬ</button>
+                <button class="menu-btn" id="btn-quit">В МЕНЮ</button>
+            </div>
+
+            <div class="screen" id="screen-gameover">
+                <h1 class="dead">СМЕНА ОКОНЧЕНА</h1>
+                <p>Ты не дожил до утра.</p>
+                <div class="stats">
+                    <p>Аномалий зафиксировано: <span id="stat-fixed">0</span></p>
+                    <p>Пропущено: <span id="stat-missed">0</span></p>
+                </div>
+                <button class="menu-btn" id="btn-retry">ЗАНОВО</button>
+                <button class="menu-btn" id="btn-menu-from-dead">В МЕНЮ</button>
+            </div>
+
+            <div class="screen" id="screen-night_complete">
+                <h1 class="time-6">06:00</h1>
+                <p>НОЧЬ <span id="complete-night">1</span> ПРОЙДЕНА</p>
+                <div class="stats">
+                    <p>Аномалий зафиксировано: <span id="complete-fixed">0</span></p>
+                    <p>Пропущено: <span id="complete-missed">0</span></p>
+                    <p>Энергии осталось: <span id="complete-energy">0</span>%</p>
+                </div>
+                <button class="menu-btn" id="btn-next-night">СЛЕДУЮЩАЯ НОЧЬ</button>
+            </div>
+
+            <div class="screen" id="screen-win">
+                <pre id="win-text" class="mono-green"></pre>
+            </div>
+
+            <canvas id="jumpscare-canvas" width="1280" height="720"></canvas>
+
+            <div class="crt-overlay"></div>
+        </div>
+    </div>
+
+    <script src="scripts/audio.js"></script>
+    <script src="scripts/save.js"></script>
+    <script src="scripts/state.js"></script>
+    <script src="scripts/cameras.js"></script>
+    <script src="scripts/anomalies.js"></script>
+    <script src="scripts/monster.js"></script>
+    <script src="scripts/player.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/endings.js"></script>
+    <script src="scripts/main.js"></script>
 </body>
 </html>
