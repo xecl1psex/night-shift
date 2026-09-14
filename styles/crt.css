@@ -1,1 +1,45 @@
-/* crt.css */
+.crt-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0,0,0,0.15) 0px,
+            rgba(0,0,0,0.15) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+}
+
+#game::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9997;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 40%,
+        rgba(0,0,0,0.75) 100%
+    );
+}
+
+#game {
+    animation: game-flicker 0.12s infinite;
+}
+@keyframes game-flicker {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(0.98); }
+    100% { filter: brightness(1); }
+}
+
+#game.danger {
+    filter: hue-rotate(-10deg) contrast(1.2);
+}
+#game.danger #hud-time {
+    text-shadow: 2px 0 #ff2222, -2px 0 #00ffff;
+}
+
+#screen-playing { cursor: crosshair; }
