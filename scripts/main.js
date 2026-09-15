@@ -182,12 +182,9 @@ function startTick() {
         spawnAnomalyIfNeeded();
     }, 1000);
 
+    // Звук статического шума отключён для предотвращения багов
     if (GameState.staticInterval) clearInterval(GameState.staticInterval);
-    GameState.staticInterval = setInterval(() => {
-        if (GameState.mode !== 'PLAYING') return;
-        const intensity = GameState.monster ? GameState.monster.progress / 100 : 0;
-        playStatic(intensity);
-    }, 200);
+    GameState.staticInterval = null;
 }
 
 function stopTick() {

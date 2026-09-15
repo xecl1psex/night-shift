@@ -1,9 +1,50 @@
-# Examples where .gitignore should remain empty:
-# If only source files like .js, .css, .py, .java, .go, .cpp, .h, .md, .txt, .json, .yml, .yaml, .toml, .cfg, .ini are in the changes
-# and there are no build artifacts, dependencies, or temporary files, then output nothing.
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
-# In this case, the changes are only JavaScript and CSS source files:
-# scripts/audio.js, scripts/endings.js, scripts/main.js, scripts/ui.js, styles/main.css
-# No build artifacts, dependencies, or temp files detected.
+# Dependencies
+node_modules/
+venv/
+.venv/
+.env
+.env.local
+*.env.*
 
-# Therefore, no .gitignore rules are needed for these changes.
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Build directories
+dist/
+build/
+target/
+.gradle/
+
+# Python specific
+.mypy_cache/
+.pytest_cache/
