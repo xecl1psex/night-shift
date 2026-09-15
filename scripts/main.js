@@ -49,6 +49,10 @@ function init() {
 
     document.addEventListener('click', () => {
         if (!audioCtx) initAudio();
+        // Start ambient music on first click if audio context exists
+        if (audioCtx && typeof window.startAmbient === 'function' && !window.ambientOsc1) {
+            window.startAmbient();
+        }
     }, { once: true });
 
     bindMenuButtons();

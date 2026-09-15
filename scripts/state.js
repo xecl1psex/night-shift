@@ -68,17 +68,37 @@ function onModeChange(oldMode, newMode) {
             startHum();
             GameState.humStarted = true;
         }
+        // Start ambient music
+        if (typeof window.initAudio === 'function') {
+            window.initAudio();
+        }
+        if (typeof window.startAmbient === 'function') {
+            window.startAmbient();
+            window.setAmbientMode('calm');
+        }
         if (typeof startTick === 'function') startTick();
+    }
+
+    if (newMode === 'PAUSED') {
+        if (typeof window.setAmbientMode === 'function') {
+            window.setAmbientMode('off');
+        }
     }
 
     if (newMode === 'MENU' || newMode === 'GAMEOVER' || newMode === 'WIN') {
         if (typeof stopTick === 'function') stopTick();
         if (typeof stopHum === 'function') stopHum();
+        if (typeof window.stopAmbient === 'function') {
+            window.stopAmbient();
+        }
         GameState.humStarted = false;
     }
 
     if (newMode === 'JUMPSCARE') {
         if (typeof stopTick === 'function') stopTick();
+        if (typeof window.setAmbientMode === 'function') {
+            window.setAmbientMode('danger');
+        }
         if (typeof startJumpscareRender === 'function') startJumpscareRender();
     }
 

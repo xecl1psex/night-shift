@@ -70,6 +70,17 @@ function monsterTick(dt) {
         m.freezeTimer = 0;
     }
 
+    // Update ambient music based on monster progress
+    if (typeof window.setAmbientMode === 'function') {
+        if (m.progress >= 70 && window.currentAmbientMode !== 'danger') {
+            window.setAmbientMode('danger');
+        } else if (m.progress >= 40 && window.currentAmbientMode !== 'tense') {
+            window.setAmbientMode('tense');
+        } else if (m.progress < 40 && window.currentAmbientMode !== 'calm') {
+            window.setAmbientMode('calm');
+        }
+    }
+
     if (m.state === 'HIDDEN' && m.progress >= 20) {
         m.state = 'WANDER';
         m.position = randomCamera();
