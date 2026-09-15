@@ -68,7 +68,8 @@ function bindMenuButtons() {
     const btnNextNight = document.getElementById('btn-next-night');
     if (btnNextNight) btnNextNight.addEventListener('click', () => {
         GameState.currentNight++;
-        openIntro();
+        saveGame();
+        startNightReal();
     });
 }
 

@@ -9,6 +9,11 @@ let humGain = null;
 let humOscillator2 = null;
 let lastWhisperTime = 0;
 let lastClickTime = 0;
+let lastMissClickTime = 0;
+
+window.getAudioContextTime = function() {
+    return audioCtx ? audioCtx.currentTime : 0;
+};
 
 function initAudio() {
     if (audioCtx) return;
@@ -281,3 +286,4 @@ window.playScream = playScream;
 window.playStatic = playStatic;
 window.playHeartbeat = playHeartbeat;
 window.stopAllAudio = stopAllAudio;
+window.getAudioContextTime = window.getAudioContextTime;
