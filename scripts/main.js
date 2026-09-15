@@ -1,8 +1,13 @@
 // ============================================
 // scripts/main.js — Игровой цикл, рендер, ввод
 // ============================================
+// Я есть: Главный модуль игры "СМЕНА". Управляет циклом отрисовки,
+// обработкой ввода пользователя (клавиатура, мышь), инициализацией
+// Canvas-контекстов и запуском игровых систем. Координирует работу
+// всех остальных модулей через глобальный объект GameState.
+// ============================================
 
-let lastFrameTime = 0;
+let lastFrameTime = 0; // Время последнего кадра для расчёта delta time
 
 function init() {
     GameState.dom.canvasActive = document.getElementById('active-cam');
@@ -49,6 +54,10 @@ function init() {
 
     document.addEventListener('click', () => {
         if (!audioCtx) initAudio();
+        // Start ambient music on first click if audio context exists
+        if (audioCtx && typeof window.startAmbient === 'function' && !window.ambientOsc1) {
+            window.startAmbient();
+        }
     }, { once: true });
 
     bindMenuButtons();

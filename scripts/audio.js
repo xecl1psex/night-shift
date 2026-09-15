@@ -1,15 +1,31 @@
 // ============================================
 // scripts/audio.js — Web Audio API генератор звуков
 // ============================================
+// Я есть: Звуковой движок игры "СМЕНА". Генерирует все звуки
+// процедурно через Web Audio API без использования внешних файлов.
+// Создаёт атмосферные эффекты (гул, шёпот, скрежет), звуковые
+// сигналы интерфейса и динамическую фоновую музыку на трёх
+// осцилляторах с фильтрами. Управляет мастер-громкостью и
+// контекстом аудио, автоматически приостанавливая/возобновляя
+// воспроизведение в зависимости от состояния игры.
+// ============================================
 
-let audioCtx = null;
-let masterGain = null;
-let humOscillator = null;
-let humGain = null;
-let humOscillator2 = null;
-let lastWhisperTime = 0;
-let lastClickTime = 0;
-let lastMissClickTime = 0;
+let audioCtx = null; // Аудио-контекст Web Audio API
+let masterGain = null; // Мастер-канал громкости
+let humOscillator = null; // Фоновый гул (осциллятор 1)
+let humGain = null; // Громкость фонового гула
+let humOscillator2 = null; // Фоновый гул (осциллятор 2)
+let lastWhisperTime = 0; // Время последнего звука шёпота
+let lastClickTime = 0; // Время последнего клика
+let lastMissClickTime = 0; // Время последнего промаха по аномалии
+
+// Переменные для фоновой музыки (ambient)
+let ambientOsc1 = null; // Низкий дрон (sine, 55 Гц)
+let ambientOsc2 = null; // Кварта выше (sine, 82.4 Гц)
+let ambientOsc3 = null; // Лёгкий гул (triangle, 110 Гц)
+let ambientGain = null; // Общая громкость музыки
+let ambientFilter = null; // Lowpass-фильтр для музыки
+let currentAmbientMode = null; // Текущий режим музыки: calm/tense/danger/off
 
 window.getAudioContextTime = function() {
     return audioCtx ? audioCtx.currentTime : 0;
@@ -269,10 +285,115 @@ function playHeartbeat() {
 
 function stopAllAudio() {
     stopHum();
+    stopAmbient();
     if (audioCtx) {
         try { audioCtx.close(); } catch (e) {}
         audioCtx = null;
     }
+}
+
+function startAmbient() {
+    if (!audioCtx || ambientOsc1) return;
+    
+    const now = audioCtx.currentTime;
+    
+    // osc1 — sine, 55 Гц (низкий дрон)
+    ambientOsc1 = audioCtx.createOscillator();
+    ambientOsc1.type = 'sine';
+    ambientOsc1.frequency.value = 55;
+    
+    const gain1 = audioCtx.createGain();
+    gain1.gain.value = 0.05;
+    ambientOsc1.connect(gain1);
+    
+    // osc2 — sine, 82.4 Гц (кварта выше)
+    ambientOsc2 = audioCtx.createOscillator();
+    ambientOsc2.type = 'sine';
+    ambientOsc2.frequency.value = 82.4;
+    
+    const gain2 = audioCtx.createGain();
+    gain2.gain.value = 0.03;
+    ambientOsc2.connect(gain2);
+    
+    // osc3 — triangle, 110 Гц (лёгкий гул)
+    ambientOsc3 = audioCtx.createOscillator();
+    ambientOsc3.type = 'triangle';
+    ambientOsc3.frequency.value = 110;
+    
+    const gain3 = audioCtx.createGain();
+    gain3.gain.value = 0.02;
+    ambientOsc3.connect(gain3);
+    
+    // Общий ambientGain
+    ambientGain = audioCtx.createGain();
+    ambientGain.gain.value = 0.15;
+    
+    // Фильтр lowpass
+    ambientFilter = audioCtx.createBiquadFilter();
+    ambientFilter.type = 'lowpass';
+    ambientFilter.frequency.value = 300;
+    ambientFilter.Q.value = 1;
+    
+    // Подключение: все осцилляторы → ambientGain → ambientFilter → masterGain
+    gain1.connect(ambientGain);
+    gain2.connect(ambientGain);
+    gain3.connect(ambientGain);
+    ambientGain.connect(ambientFilter);
+    ambientFilter.connect(masterGain);
+    
+    // Запуск всех осцилляторов
+    ambientOsc1.start(now);
+    ambientOsc2.start(now);
+    ambientOsc3.start(now);
+    
+    currentAmbientMode = 'calm';
+}
+
+function setAmbientMode(mode) {
+    if (!audioCtx || !ambientOsc1 || mode === currentAmbientMode) return;
+    
+    const now = audioCtx.currentTime;
+    currentAmbientMode = mode;
+    
+    if (mode === 'calm') {
+        ambientOsc1.frequency.linearRampToValueAtTime(55, now + 1);
+        ambientOsc2.frequency.linearRampToValueAtTime(82.4, now + 1);
+        ambientOsc3.frequency.linearRampToValueAtTime(110, now + 1);
+        ambientFilter.frequency.linearRampToValueAtTime(300, now + 1);
+        ambientGain.gain.linearRampToValueAtTime(0.15, now + 1);
+    } else if (mode === 'tense') {
+        ambientOsc1.frequency.linearRampToValueAtTime(58, now + 0.8);
+        ambientOsc2.frequency.linearRampToValueAtTime(87, now + 0.8);
+        ambientOsc3.frequency.linearRampToValueAtTime(116, now + 0.8);
+        ambientFilter.frequency.linearRampToValueAtTime(500, now + 0.8);
+        ambientGain.gain.linearRampToValueAtTime(0.22, now + 0.8);
+    } else if (mode === 'danger') {
+        ambientOsc1.frequency.linearRampToValueAtTime(62, now + 0.5);
+        ambientOsc2.frequency.linearRampToValueAtTime(92.5, now + 0.5);
+        ambientOsc3.frequency.linearRampToValueAtTime(123.5, now + 0.5);
+        ambientFilter.frequency.linearRampToValueAtTime(800, now + 0.5);
+        ambientGain.gain.linearRampToValueAtTime(0.3, now + 0.5);
+    } else if (mode === 'off') {
+        ambientGain.gain.linearRampToValueAtTime(0, now + 1);
+    }
+}
+
+function stopAmbient() {
+    if (ambientOsc1) {
+        try { ambientOsc1.stop(); } catch (e) {}
+        ambientOsc1 = null;
+    }
+    if (ambientOsc2) {
+        try { ambientOsc2.stop(); } catch (e) {}
+        ambientOsc2 = null;
+    }
+    if (ambientOsc3) {
+        try { ambientOsc3.stop(); } catch (e) {}
+        ambientOsc3 = null;
+    }
+    ambientGain = null;
+    ambientFilter = null;
+    currentAmbientMode = null;
 }
 
 window.initAudio = initAudio;
@@ -287,3 +408,6 @@ window.playStatic = playStatic;
 window.playHeartbeat = playHeartbeat;
 window.stopAllAudio = stopAllAudio;
 window.getAudioContextTime = window.getAudioContextTime;
+window.startAmbient = startAmbient;
+window.setAmbientMode = setAmbientMode;
+window.stopAmbient = stopAmbient;

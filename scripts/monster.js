@@ -1,16 +1,25 @@
 // ============================================
 // scripts/monster.js — ИИ монстра и отрисовка
 // ============================================
+// Я есть: Искусственный интеллект монстра в игре "СМЕНА".
+// Реализует конечный автомат с состояниями: HIDDEN (скрыт),
+// WANDER (блуждает по камерам), HUNT (охотится, движется к CAM4),
+// DOOR (у двери офиса), ATTACK (скример). Монстр телепортируется,
+// если игрок слишком долго смотрит на него. Прогресс монстра
+// растёт пассивно и от ошибок игрока. При достижении 100% и
+// открытой двери — скример. Также управляет отрисовкой монстра
+// в разных состояниях с эффектами дрожания и пульсации.
+// ============================================
 
 function createMonster() {
     return {
-        progress: 0,
-        state: 'HIDDEN',
-        position: null,
-        freezeTimer: 0,
-        stepCooldown: 0,
-        side: null,
-        doorTimer: 0
+        progress: 0, // Прогресс приближения монстра (0-100)
+        state: 'HIDDEN', // Текущее состояние: HIDDEN/WANDER/HUNT/DOOR/ATTACK
+        position: null, // Текущая камера монстра (CAM1-CAM4)
+        freezeTimer: 0, // Таймер заморозки при взгляде игрока
+        stepCooldown: 0, // Перезарядка между перемещениями
+        side: null, // Сторона атаки: LEFT/RIGHT/BOTH
+        doorTimer: 0 // Таймер до атаки из-за двери
     };
 }
 
@@ -68,6 +77,17 @@ function monsterTick(dt) {
         }
     } else {
         m.freezeTimer = 0;
+    }
+
+    // Update ambient music based on monster progress
+    if (typeof window.setAmbientMode === 'function') {
+        if (m.progress >= 70 && window.currentAmbientMode !== 'danger') {
+            window.setAmbientMode('danger');
+        } else if (m.progress >= 40 && window.currentAmbientMode !== 'tense') {
+            window.setAmbientMode('tense');
+        } else if (m.progress < 40 && window.currentAmbientMode !== 'calm') {
+            window.setAmbientMode('calm');
+        }
     }
 
     if (m.state === 'HIDDEN' && m.progress >= 20) {

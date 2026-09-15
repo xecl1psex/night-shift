@@ -1,30 +1,39 @@
 // ============================================
 // scripts/state.js — Глобальное состояние игры
 // ============================================
+// Я есть: Центральный реестр состояния игры "СМЕНА". Хранит
+// текущий режим (BOOT/MENU/PLAYING и т.д.), номер ночи, время,
+// ссылки на игрока, монстра и аномалии. Управляет переключением
+// экранов через DOM, координирует переходы между режимами
+// (запуск/остановка звука, таймеров). Содержит конфигурацию
+// всех 12 ночей с балансом сложности, параметрами спавна
+// аномалий и поведением монстра. Экспортирует функции для
+// сброса состояния ночи и полной перезагрузки игры.
+// ============================================
 
 const GameState = {
-    mode: 'BOOT',
-    currentNight: 1,
-    elapsedTime: 0,
-    gameHour: 0,
-    gameMinute: 0,
-    scanY: -20,
-    player: null,
-    monster: null,
-    anomalies: [],
-    lastAnomalySpawnTime: 0,
+    mode: 'BOOT', // Текущий режим игры
+    currentNight: 1, // Номер текущей ночи (1-12)
+    elapsedTime: 0, // Прошлое время в секундах с начала ночи
+    gameHour: 0, // Игровой час (0-6)
+    gameMinute: 0, // Игровая минута (0-59)
+    scanY: -20, // Позиция скан-линии CRT-эффекта
+    player: null, // Объект игрока из player.js
+    monster: null, // Объект монстра из monster.js
+    anomalies: [], // Массив активных аномалий на камерах
+    lastAnomalySpawnTime: 0, // Время последнего спавна аномалии
     dom: {
-        canvasActive: null,
-        ctxActive: null,
-        miniCams: [],
-        jumpscareCanvas: null,
-        jumpscareCtx: null
+        canvasActive: null, // Canvas активной камеры
+        ctxActive: null, // Context активной камеры
+        miniCams: [], // Массив объектов мини-камер
+        jumpscareCanvas: null, // Canvas для скримера
+        jumpscareCtx: null // Context для скримера
     },
-    tickInterval: null,
-    staticInterval: null,
-    staticCacheBuffer: null,
-    humStarted: false,
-    stats: { fixed: 0, missed: 0, falseClicks: 0 }
+    tickInterval: null, // Интервал обновления логики игры (1 сек)
+    staticInterval: null, // Интервал фонового шума (отключён)
+    staticCacheBuffer: null, // Кэш буфера белого шума
+    humStarted: false, // Флаг запущенного фонового гула
+    stats: { fixed: 0, missed: 0, falseClicks: 0 } // Статистика ночи
 };
 
 const SCREEN_MAP = {
@@ -68,17 +77,37 @@ function onModeChange(oldMode, newMode) {
             startHum();
             GameState.humStarted = true;
         }
+        // Start ambient music
+        if (typeof window.initAudio === 'function') {
+            window.initAudio();
+        }
+        if (typeof window.startAmbient === 'function') {
+            window.startAmbient();
+            window.setAmbientMode('calm');
+        }
         if (typeof startTick === 'function') startTick();
+    }
+
+    if (newMode === 'PAUSED') {
+        if (typeof window.setAmbientMode === 'function') {
+            window.setAmbientMode('off');
+        }
     }
 
     if (newMode === 'MENU' || newMode === 'GAMEOVER' || newMode === 'WIN') {
         if (typeof stopTick === 'function') stopTick();
         if (typeof stopHum === 'function') stopHum();
+        if (typeof window.stopAmbient === 'function') {
+            window.stopAmbient();
+        }
         GameState.humStarted = false;
     }
 
     if (newMode === 'JUMPSCARE') {
         if (typeof stopTick === 'function') stopTick();
+        if (typeof window.setAmbientMode === 'function') {
+            window.setAmbientMode('danger');
+        }
         if (typeof startJumpscareRender === 'function') startJumpscareRender();
     }
 
