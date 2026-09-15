@@ -27,6 +27,42 @@ let ambientGain = null; // Общая громкость музыки
 let ambientFilter = null; // Lowpass-фильтр для музыки
 let currentAmbientMode = null; // Текущий режим музыки: calm/tense/danger/off
 
+// Дополнительные переменные для музыкальной композиции
+let musicInterval = null; // Интервал для арпеджио
+let musicNoteIndex = 0; // Текущая нота в последовательности
+let arpOscillators = []; // Массив осцилляторов для арпеджио
+let arpGains = []; // Массив gain для арпеджио
+let bassOsc = null; // Басовая линия
+let bassGain = null;
+let padOsc1 = null; // Пад-аккорд 1
+let padOsc2 = null; // Пад-аккорд 2
+let padGain = null;
+
+// Музыкальные последовательности для разных режимов
+const musicSequences = {
+    calm: {
+        bass: [55, 55, 65.41, 55, 49, 49, 58.27, 49], // A1, E2, F#2, D2
+        arp: [110, 130.81, 164.81, 196, 164.81, 130.81, 110, 98], // A3, C#4, E4, G4...
+        pad: [55, 69.30, 82.41], // A minor: A2, F3, E3
+        tempo: 2000,
+        filterFreq: 300
+    },
+    tense: {
+        bass: [58.27, 58.27, 69.30, 58.27, 51.91, 51.91, 61.74, 51.91],
+        arp: [116.54, 138.59, 174.61, 207.65, 174.61, 138.59, 116.54, 103.83],
+        pad: [58.27, 73.42, 87.31],
+        tempo: 1500,
+        filterFreq: 500
+    },
+    danger: {
+        bass: [62, 62, 73.42, 62, 55, 55, 65.41, 55],
+        arp: [123.47, 146.83, 185, 220, 185, 146.83, 123.47, 110],
+        pad: [62, 77.78, 92.50],
+        tempo: 1000,
+        filterFreq: 800
+    }
+};
+
 window.getAudioContextTime = function() {
     return audioCtx ? audioCtx.currentTime : 0;
 };
@@ -347,6 +383,150 @@ function startAmbient() {
     ambientOsc3.start(now);
     
     currentAmbientMode = 'calm';
+    
+    // Запуск полноценной музыки с басом, арпеджио и падом
+    startMusic('calm');
+}
+
+// Функция для запуска полноценной фоновой музыки
+function startMusic(mode) {
+    if (!audioCtx) return;
+    stopMusic(); // Остановить предыдущую музыку
+    
+    const seq = musicSequences[mode] || musicSequences.calm;
+    const now = audioCtx.currentTime;
+    
+    // Басовая линия (sine wave, глубокий звук)
+    bassOsc = audioCtx.createOscillator();
+    bassOsc.type = 'sine';
+    bassOsc.frequency.value = seq.bass[0];
+    
+    bassGain = audioCtx.createGain();
+    bassGain.gain.value = 0.12;
+    
+    const bassFilter = audioCtx.createBiquadFilter();
+    bassFilter.type = 'lowpass';
+    bassFilter.frequency.value = 200;
+    
+    bassOsc.connect(bassFilter);
+    bassFilter.connect(bassGain);
+    bassGain.connect(masterGain);
+    bassOsc.start(now);
+    
+    // Пад-аккорд (два осциллятора для объёма)
+    padOsc1 = audioCtx.createOscillator();
+    padOsc1.type = 'triangle';
+    padOsc1.frequency.value = seq.pad[0];
+    
+    padOsc2 = audioCtx.createOscillator();
+    padOsc2.type = 'sine';
+    padOsc2.frequency.value = seq.pad[1];
+    
+    padGain = audioCtx.createGain();
+    padGain.gain.value = 0.06;
+    
+    const padFilter = audioCtx.createBiquadFilter();
+    padFilter.type = 'lowpass';
+    padFilter.frequency.value = seq.filterFreq;
+    padFilter.Q.value = 0.5;
+    
+    padOsc1.connect(padFilter);
+    padOsc2.connect(padFilter);
+    padFilter.connect(padGain);
+    padGain.connect(masterGain);
+    
+    padOsc1.start(now);
+    padOsc2.start(now);
+    
+    // Арпеджио — запускаем интервал
+    musicNoteIndex = 0;
+    playArpeggioNote(seq.arp[musicNoteIndex], mode);
+    
+    musicInterval = setInterval(() => {
+        if (!audioCtx || currentAmbientMode === 'off' || currentAmbientMode === null) {
+            stopMusic();
+            return;
+        }
+        musicNoteIndex = (musicNoteIndex + 1) % seq.arp.length;
+        playArpeggioNote(seq.arp[musicNoteIndex], mode);
+    }, seq.tempo);
+    
+    // Обновляем частоту фильтра в зависимости от режима
+    if (ambientFilter) {
+        ambientFilter.frequency.linearRampToValueAtTime(seq.filterFreq, now + 1);
+    }
+}
+
+// Проигрывание одной ноты арпеджио
+function playArpeggioNote(freq, mode) {
+    if (!audioCtx) return;
+    
+    const now = audioCtx.currentTime;
+    const seq = musicSequences[mode] || musicSequences.calm;
+    
+    // Создаём новый осциллятор для каждой ноты
+    const arpOsc = audioCtx.createOscillator();
+    arpOsc.type = mode === 'danger' ? 'sawtooth' : 'sine';
+    arpOsc.frequency.value = freq;
+    
+    const arpGainNode = audioCtx.createGain();
+    arpGainNode.gain.setValueAtTime(0, now);
+    arpGainNode.gain.linearRampToValueAtTime(mode === 'danger' ? 0.04 : 0.05, now + 0.05);
+    arpGainNode.gain.exponentialRampToValueAtTime(0.001, now + (seq.tempo / 1000) - 0.1);
+    
+    const arpFilter = audioCtx.createBiquadFilter();
+    arpFilter.type = 'lowpass';
+    arpFilter.frequency.value = seq.filterFreq * 2;
+    
+    arpOsc.connect(arpFilter);
+    arpFilter.connect(arpGainNode);
+    arpGainNode.connect(masterGain);
+    
+    arpOsc.start(now);
+    arpOsc.stop(now + (seq.tempo / 1000));
+    
+    // Сохраняем ссылки для очистки
+    arpOscillators.push(arpOsc);
+    arpGains.push(arpGainNode);
+    
+    // Очищаем старые осцилляторы из массива
+    if (arpOscillators.length > 16) {
+        arpOscillators.shift();
+        arpGains.shift();
+    }
+}
+
+// Остановка музыки (бас, пад, арпеджио)
+function stopMusic() {
+    if (musicInterval) {
+        clearInterval(musicInterval);
+        musicInterval = null;
+    }
+    
+    if (bassOsc) {
+        try { bassOsc.stop(); } catch (e) {}
+        bassOsc = null;
+    }
+    bassGain = null;
+    
+    if (padOsc1) {
+        try { padOsc1.stop(); } catch (e) {}
+        padOsc1 = null;
+    }
+    if (padOsc2) {
+        try { padOsc2.stop(); } catch (e) {}
+        padOsc2 = null;
+    }
+    padGain = null;
+    
+    // Останавливаем все активные арпеджио-осцилляторы
+    arpOscillators.forEach(osc => {
+        try { osc.stop(); } catch (e) {}
+    });
+    arpOscillators = [];
+    arpGains = [];
+    
+    musicNoteIndex = 0;
 }
 
 function setAmbientMode(mode) {
@@ -354,6 +534,13 @@ function setAmbientMode(mode) {
     
     const now = audioCtx.currentTime;
     currentAmbientMode = mode;
+    
+    // Перезапускаем музыку с новыми параметрами режима
+    if (mode !== 'off') {
+        startMusic(mode);
+    } else {
+        stopMusic();
+    }
     
     if (mode === 'calm') {
         ambientOsc1.frequency.linearRampToValueAtTime(55, now + 1);
@@ -379,6 +566,8 @@ function setAmbientMode(mode) {
 }
 
 function stopAmbient() {
+    stopMusic(); // Остановить музыку (бас, пад, арпеджио)
+    
     if (ambientOsc1) {
         try { ambientOsc1.stop(); } catch (e) {}
         ambientOsc1 = null;
@@ -411,3 +600,5 @@ window.getAudioContextTime = window.getAudioContextTime;
 window.startAmbient = startAmbient;
 window.setAmbientMode = setAmbientMode;
 window.stopAmbient = stopAmbient;
+window.startMusic = startMusic;
+window.stopMusic = stopMusic;
