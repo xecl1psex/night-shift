@@ -22,13 +22,13 @@ function updateEnergy(dt) {
     if (p.energy <= 0) return;
 
     const cfg = getNightConfig(GameState.currentNight);
-    let drain = 0.5;
+    let drain = 0.08;
 
     if (p.lightOn) {
-        drain += 2 * cfg.energyMultiplier;
+        drain += 0.4 * cfg.energyMultiplier;
     }
-    if (p.doorLeft) drain += 1.5;
-    if (p.doorRight) drain += 1.5;
+    if (p.doorLeft) drain += 0.3;
+    if (p.doorRight) drain += 0.3;
 
     p.energy -= drain * dt;
 
