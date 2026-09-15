@@ -7,6 +7,8 @@ let masterGain = null;
 let humOscillator = null;
 let humGain = null;
 let humOscillator2 = null;
+let lastWhisperTime = 0;
+let lastClickTime = 0;
 
 function initAudio() {
     if (audioCtx) return;
@@ -60,23 +62,31 @@ function stopHum() {
 
 function playClick() {
     if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    if (now - lastClickTime < 0.05) return;
+    lastClickTime = now;
+
     const osc = audioCtx.createOscillator();
     osc.type = 'square';
     osc.frequency.value = 800;
 
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
     osc.connect(gain);
     gain.connect(masterGain);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.05);
+    osc.start(now);
+    osc.stop(now + 0.05);
 }
 
 function playWhisper() {
     if (!audioCtx) return;
-    const bufferSize = Math.floor(audioCtx.sampleRate * 0.6);
+    const now = audioCtx.currentTime;
+    if (now - lastWhisperTime < 0.25) return;
+    lastWhisperTime = now;
+
+    const bufferSize = Math.floor(audioCtx.sampleRate * 0.4);
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
@@ -91,14 +101,14 @@ function playWhisper() {
     filter.frequency.value = 400;
 
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
 
     shum.connect(filter);
     filter.connect(gain);
     gain.connect(masterGain);
-    shum.start();
-    shum.stop(audioCtx.currentTime + 0.6);
+    shum.start(now);
+    shum.stop(now + 0.4);
 }
 
 function playKnock() {
@@ -124,7 +134,8 @@ function playKnock() {
 
 function playDoorClose() {
     if (!audioCtx) return;
-    const bufferSize = Math.floor(audioCtx.sampleRate * 0.4);
+    const now = audioCtx.currentTime;
+    const bufferSize = Math.floor(audioCtx.sampleRate * 0.3);
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
@@ -140,42 +151,43 @@ function playDoorClose() {
     filter.Q.value = 5;
 
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
 
     shum.connect(filter);
     filter.connect(gain);
     gain.connect(masterGain);
-    shum.start();
-    shum.stop(audioCtx.currentTime + 0.4);
+    shum.start(now);
+    shum.stop(now + 0.3);
 
     const osc = audioCtx.createOscillator();
     osc.type = 'sine';
     osc.frequency.value = 80;
     const gain2 = audioCtx.createGain();
-    gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+    gain2.gain.setValueAtTime(0.3, now);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
     osc.connect(gain2);
     gain2.connect(masterGain);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.3);
+    osc.start(now);
+    osc.stop(now + 0.3);
 }
 
 function playScream() {
     if (!audioCtx) return;
+    const now = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(3000, audioCtx.currentTime + 1.0);
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.exponentialRampToValueAtTime(3000, now + 1.0);
 
     const gain = audioCtx.createGain();
-    gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+    gain.gain.setValueAtTime(0.6, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
 
     osc.connect(gain);
     gain.connect(masterGain);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 1.2);
+    osc.start(now);
+    osc.stop(now + 1.2);
 
     const bufferSize = Math.floor(audioCtx.sampleRate * 1.2);
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
@@ -187,18 +199,18 @@ function playScream() {
     const shum = audioCtx.createBufferSource();
     shum.buffer = buffer;
     const shumGain = audioCtx.createGain();
-    shumGain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-    shumGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+    shumGain.gain.setValueAtTime(0.4, now);
+    shumGain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
 
     shum.connect(shumGain);
     shumGain.connect(masterGain);
-    shum.start();
-    shum.stop(audioCtx.currentTime + 1.2);
+    shum.start(now);
+    shum.stop(now + 1.2);
 }
 
 function playStatic(intensity) {
     if (!audioCtx) return;
-    if (intensity < 0.05) return;
+    if (intensity < 0.1) return;
 
     if (!GameState.staticCacheBuffer) {
         const bufferSize = Math.floor(audioCtx.sampleRate * 0.1);
@@ -210,12 +222,13 @@ function playStatic(intensity) {
         GameState.staticCacheBuffer = buffer;
     }
 
+    const now = audioCtx.currentTime;
     const source = audioCtx.createBufferSource();
     source.buffer = GameState.staticCacheBuffer;
-    source.loop = true;
+    source.loop = false;
 
     const gain = audioCtx.createGain();
-    gain.gain.value = intensity * 0.15;
+    gain.gain.value = intensity * 0.08;
 
     const filter = audioCtx.createBiquadFilter();
     filter.type = 'highpass';
@@ -224,10 +237,8 @@ function playStatic(intensity) {
     source.connect(filter);
     filter.connect(gain);
     gain.connect(masterGain);
-    source.start();
-    setTimeout(() => {
-        try { source.stop(); } catch (e) {}
-    }, 150);
+    source.start(now);
+    source.stop(now + 0.15);
 }
 
 function playHeartbeat() {
