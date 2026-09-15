@@ -337,8 +337,8 @@ html, body {
     margin-bottom: 30px;
 }
 
-#game.low-energy { animation: shake-light 0.15s infinite; }
-#game.critical-energy { animation: shake-heavy 0.1s infinite; }
+#game.low-energy { animation: shake-light 0.15s infinite; transform: scale(1) !important; }
+#game.critical-energy { animation: shake-heavy 0.1s infinite; transform: scale(1) !important; }
 @keyframes shake-light {
     0%, 100% { transform: translate(0, 0); }
     50% { transform: translate(1px, 0); }

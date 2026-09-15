@@ -36,14 +36,19 @@ function nightComplete() {
     const screen = document.getElementById('screen-night-complete');
     if (!screen) return;
 
-    const nightNum = document.getElementById('night-complete-number');
+    const nightNum = document.getElementById('complete-night');
     if (nightNum) nightNum.textContent = currentNight;
 
-    setMode('NIGHT_COMPLETE');
+    const fixedEl = document.getElementById('complete-fixed');
+    if (fixedEl) fixedEl.textContent = GameState.stats.fixed;
 
-    setTimeout(() => {
-        startNightReal();
-    }, 3000);
+    const missedEl = document.getElementById('complete-missed');
+    if (missedEl) missedEl.textContent = GameState.stats.missed;
+
+    const energyEl = document.getElementById('complete-energy');
+    if (energyEl && GameState.player) energyEl.textContent = Math.floor(GameState.player.energy);
+
+    setMode('NIGHT_COMPLETE');
 }
 
 function startNightReal() {

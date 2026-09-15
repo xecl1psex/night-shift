@@ -147,6 +147,10 @@ function handleCanvasClick(e) {
     }
 
     if (!hit) {
+        const now = window.getAudioContextTime ? window.getAudioContextTime() : 0;
+        if (now - lastMissClickTime < 0.3) return;
+        lastMissClickTime = now;
+        
         monster.progress += 3;
         player.energy -= 5;
         if (typeof playWhisper === 'function') playWhisper();
@@ -369,5 +373,6 @@ window.flashScreen = flashScreen;
 window.startTick = startTick;
 window.stopTick = stopTick;
 window.updateGameTime = updateGameTime;
+window.lastMissClickTime = lastMissClickTime;
 
 document.addEventListener('DOMContentLoaded', init);
