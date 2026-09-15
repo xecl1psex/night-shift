@@ -1,15 +1,24 @@
 // ============================================
 // scripts/anomalies.js — Аномалии: спавн и отрисовка
 // ============================================
+// Я есть: Система аномалий в игре "СМЕНА". Содержит 7 типов
+// аномалий (shadow, chair, door, text, reflection, flicker, eyes)
+// с весами спавна, временем жизни, уроном и радиусом попадания.
+// Управляет процедурной генерацией позиций спавна для каждой
+// камеры, отрисовкой аномалий через Canvas API с эффектами
+// (дрожание, градиенты, искажения). Поддерживает ложные
+// аномалии (starting night 8), которые наказывают игрока за
+// клик. Аномалии исчезают со временем или при клике игрока.
+// ============================================
 
 const ANOMALIES = [
-    { id: 'shadow',     weight: 10, lifetime: 5, damage: 5, hitRadius: 45, draw: drawAnomalyShadow },
-    { id: 'chair',      weight: 8,  lifetime: 6, damage: 4, hitRadius: 55, draw: drawAnomalyChair },
-    { id: 'door',       weight: 7,  lifetime: 5, damage: 5, hitRadius: 60, draw: drawAnomalyDoor },
-    { id: 'text',       weight: 5,  lifetime: 3, damage: 6, hitRadius: 80, draw: drawAnomalyText },
-    { id: 'reflection', weight: 6,  lifetime: 4, damage: 5, hitRadius: 40, draw: drawAnomalyReflection },
-    { id: 'flicker',    weight: 6,  lifetime: 4, damage: 3, hitRadius: 40, draw: drawAnomalyFlicker },
-    { id: 'eyes',       weight: 4,  lifetime: 3, damage: 8, hitRadius: 35, draw: drawAnomalyEyes }
+    { id: 'shadow',     weight: 10, lifetime: 5, damage: 5, hitRadius: 45, draw: drawAnomalyShadow }, // Тень, дрейфует
+    { id: 'chair',      weight: 8,  lifetime: 6, damage: 4, hitRadius: 55, draw: drawAnomalyChair }, // Перевёрнутый стул
+    { id: 'door',       weight: 7,  lifetime: 5, damage: 5, hitRadius: 60, draw: drawAnomalyDoor }, // Открытая дверь
+    { id: 'text',       weight: 5,  lifetime: 3, damage: 6, hitRadius: 80, draw: drawAnomalyText }, // Глитч-текст
+    { id: 'reflection', weight: 6,  lifetime: 4, damage: 5, hitRadius: 40, draw: drawAnomalyReflection }, // Отражение
+    { id: 'flicker',    weight: 6,  lifetime: 4, damage: 3, hitRadius: 40, draw: drawAnomalyFlicker }, // Мерцание лампы
+    { id: 'eyes',       weight: 4,  lifetime: 3, damage: 8, hitRadius: 35, draw: drawAnomalyEyes } // Горящие глаза
 ];
 
 const ANOMALY_SPAWNS = {

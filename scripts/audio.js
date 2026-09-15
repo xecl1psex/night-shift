@@ -1,23 +1,31 @@
 // ============================================
 // scripts/audio.js — Web Audio API генератор звуков
 // ============================================
+// Я есть: Звуковой движок игры "СМЕНА". Генерирует все звуки
+// процедурно через Web Audio API без использования внешних файлов.
+// Создаёт атмосферные эффекты (гул, шёпот, скрежет), звуковые
+// сигналы интерфейса и динамическую фоновую музыку на трёх
+// осцилляторах с фильтрами. Управляет мастер-громкостью и
+// контекстом аудио, автоматически приостанавливая/возобновляя
+// воспроизведение в зависимости от состояния игры.
+// ============================================
 
-let audioCtx = null;
-let masterGain = null;
-let humOscillator = null;
-let humGain = null;
-let humOscillator2 = null;
-let lastWhisperTime = 0;
-let lastClickTime = 0;
-let lastMissClickTime = 0;
+let audioCtx = null; // Аудио-контекст Web Audio API
+let masterGain = null; // Мастер-канал громкости
+let humOscillator = null; // Фоновый гул (осциллятор 1)
+let humGain = null; // Громкость фонового гула
+let humOscillator2 = null; // Фоновый гул (осциллятор 2)
+let lastWhisperTime = 0; // Время последнего звука шёпота
+let lastClickTime = 0; // Время последнего клика
+let lastMissClickTime = 0; // Время последнего промаха по аномалии
 
-// Ambient music variables
-let ambientOsc1 = null;
-let ambientOsc2 = null;
-let ambientOsc3 = null;
-let ambientGain = null;
-let ambientFilter = null;
-let currentAmbientMode = null;
+// Переменные для фоновой музыки (ambient)
+let ambientOsc1 = null; // Низкий дрон (sine, 55 Гц)
+let ambientOsc2 = null; // Кварта выше (sine, 82.4 Гц)
+let ambientOsc3 = null; // Лёгкий гул (triangle, 110 Гц)
+let ambientGain = null; // Общая громкость музыки
+let ambientFilter = null; // Lowpass-фильтр для музыки
+let currentAmbientMode = null; // Текущий режим музыки: calm/tense/danger/off
 
 window.getAudioContextTime = function() {
     return audioCtx ? audioCtx.currentTime : 0;
