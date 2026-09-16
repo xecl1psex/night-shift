@@ -199,6 +199,106 @@ function endNight(success) {
     }
 }
 
+function triggerJumpscare() {
+    const m = GameState.monster;
+    if (!m) return;
+    
+    // Остановить таймеры игры
+    stopTick();
+    
+    // Установить режим JUMPSCARE
+    setMode('JUMPSCARE');
+    
+    // Нарисовать скример через небольшую задержку
+    const canvas = GameState.dom.jumpscareCanvas;
+    const ctx = GameState.dom.jumpscareCtx;
+    if (!canvas || !ctx) return;
+    
+    canvas.style.display = 'block';
+    
+    // Звук скримера
+    if (typeof playScream === 'function') playScream();
+    
+    // Моргание перед скримером
+    let flashCount = 0;
+    const flashInterval = setInterval(() => {
+        flashCount++;
+        if (flashCount % 2 === 0) {
+            ctx.fillStyle = '#000';
+        } else {
+            ctx.fillStyle = '#fff';
+        }
+        ctx.fillRect(0, 0, 1280, 720);
+        
+        if (flashCount >= 6) {
+            clearInterval(flashInterval);
+            // Показать лицо монстра
+            showJumpscareFace(ctx);
+            
+            // Через 2 секунды показать экран смерти
+            setTimeout(() => {
+                canvas.style.display = 'none';
+                showEnding('death');
+            }, 2000);
+        }
+    }, 150);
+}
+
+function showJumpscareFace(ctx) {
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, 1280, 720);
+    
+    ctx.save();
+    ctx.translate(640, 360);
+    
+    // Голова монстра
+    ctx.fillStyle = '#0f0f0f';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 200, 280, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Глаза (красные, светящиеся)
+    ctx.fillStyle = '#ff0000';
+    ctx.shadowColor = '#ff0000';
+    ctx.shadowBlur = 30;
+    ctx.beginPath();
+    ctx.arc(-70, -80, 35, 0, Math.PI * 2);
+    ctx.arc(70, -80, 35, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Зрачки
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 0;
+    ctx.beginPath();
+    ctx.arc(-70, -80, 12, 0, Math.PI * 2);
+    ctx.arc(70, -80, 12, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Рот с зубами
+    ctx.fillStyle = '#1a0a0a';
+    ctx.beginPath();
+    ctx.ellipse(0, 100, 120, 80, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Зубы
+    ctx.fillStyle = '#e8e8e8';
+    for (let i = -5; i <= 5; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * 25 - 12, 80);
+        ctx.lineTo(i * 25, 140);
+        ctx.lineTo(i * 25 + 12, 80);
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+    ctx.restore();
+}
+
+function startJumpscareRender() {
+    // Функция вызывается из onModeChange при переходе в режим JUMPSCARE
+    // Сама отрисовка происходит в triggerJumpscare()
+}
+
 function startTick() {
     if (GameState.tickInterval) clearInterval(GameState.tickInterval);
     GameState.tickInterval = setInterval(() => {
@@ -402,6 +502,9 @@ window.flashScreen = flashScreen;
 window.startTick = startTick;
 window.stopTick = stopTick;
 window.updateGameTime = updateGameTime;
+window.triggerJumpscare = triggerJumpscare;
+window.showJumpscareFace = showJumpscareFace;
+window.startJumpscareRender = startJumpscareRender;
 
 // Туториал для первой ночи
 let tutorialTimeouts = [];
