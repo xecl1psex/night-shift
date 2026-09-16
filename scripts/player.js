@@ -20,6 +20,7 @@ function createPlayer() {
         doorLeft: false, // Левая дверь закрыта
         doorRight: false, // Правая дверь закрыта
         lightOn: false, // Фонарь включён
+        lightFlashTimer: 0, // Таймер вспышки света
         anomaliesFixed: 0, // Количество починенных аномалий
         anomaliesMissed: 0 // Количество пропущенных аномалий
     };
@@ -55,6 +56,11 @@ function updateEnergy(dt) {
         }
         if (typeof playWhisper === 'function') playWhisper();
     }
+
+    if (p.lightFlashTimer > 0) {
+        p.lightFlashTimer -= dt;
+        if (p.lightFlashTimer < 0) p.lightFlashTimer = 0;
+    }
 }
 
 function toggleDoorLeft() {
@@ -72,9 +78,15 @@ function toggleDoorRight() {
 }
 
 function toggleLight() {
+    flashLight();
+}
+
+function flashLight() {
     const p = GameState.player;
-    if (!p || p.energy <= 0) return;
-    p.lightOn = !p.lightOn;
+    if (!p || p.energy < 5) return;
+    if (p.lightFlashTimer > 0) return; // уже светит
+    p.lightFlashTimer = 1.0;
+    p.energy -= 5;
     if (typeof playClick === 'function') playClick();
 }
 
@@ -109,7 +121,7 @@ function updateButtonIndicators() {
 
     if (lf) lf.style.width = (p.doorLeft ? ratio : 1) * 100 + '%';
     if (rf) rf.style.width = (p.doorRight ? ratio : 1) * 100 + '%';
-    if (lgf) lgf.style.width = (p.lightOn ? ratio : 1) * 100 + '%';
+    if (lgf) lgf.style.width = '100%';
 }
 
 function updateDoorButtons() {
@@ -123,7 +135,7 @@ function updateDoorButtons() {
 
     if (btnL) btnL.classList.toggle('closed', p.doorLeft);
     if (btnR) btnR.classList.toggle('closed', p.doorRight);
-    if (btnLight) btnLight.classList.toggle('on', p.lightOn);
+    if (btnLight) btnLight.classList.toggle('flashing', p.lightFlashTimer > 0);
 
     if (btnL) btnL.classList.remove('knocking');
     if (btnR) btnR.classList.remove('knocking');
@@ -158,6 +170,7 @@ window.updateEnergy = updateEnergy;
 window.toggleDoorLeft = toggleDoorLeft;
 window.toggleDoorRight = toggleDoorRight;
 window.toggleLight = toggleLight;
+window.flashLight = flashLight;
 window.updateEnergyBar = updateEnergyBar;
 window.updateButtonIndicators = updateButtonIndicators;
 window.updateDoorButtons = updateDoorButtons;
