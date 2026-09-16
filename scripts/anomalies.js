@@ -336,6 +336,26 @@ function spawnAnomalyIfNeeded() {
     });
 
     GameState.lastAnomalySpawnTime = GameState.elapsedTime;
+    
+    if (typeof playAnomalySound === 'function') playAnomalySound(тип.id);
+}
+
+function playAnomalySound(anomalyId) {
+    if (anomalyId === 'shadow') {
+        if (typeof playRustle === 'function') playRustle();
+    } else if (anomalyId === 'chair') {
+        if (typeof playCreak === 'function') playCreak();
+    } else if (anomalyId === 'door') {
+        if (typeof playWoodTap === 'function') playWoodTap();
+    } else if (anomalyId === 'text') {
+        if (typeof playBreath === 'function') playBreath();
+    } else if (anomalyId === 'reflection') {
+        if (typeof playWhisper === 'function') playWhisper();
+    } else if (anomalyId === 'flicker') {
+        if (typeof playClick === 'function') playClick();
+    } else if (anomalyId === 'eyes') {
+        if (typeof playTick === 'function') playTick();
+    }
 }
 
 function updateAnomalies(dt) {
@@ -346,7 +366,7 @@ function updateAnomalies(dt) {
             if (!a.isFalse && GameState.monster) {
                 GameState.monster.progress += a.damage;
             }
-            if (typeof playWhisper === 'function') playWhisper();
+            if (typeof playAnomalySound === 'function') playAnomalySound(a.id);
             if (typeof registerAnomalyMissed === 'function') registerAnomalyMissed();
             GameState.anomalies.splice(i, 1);
         }
@@ -358,6 +378,7 @@ window.ANOMALY_SPAWNS = ANOMALY_SPAWNS;
 window.выбратьПоВесу = выбратьПоВесу;
 window.spawnAnomalyIfNeeded = spawnAnomalyIfNeeded;
 window.updateAnomalies = updateAnomalies;
+window.playAnomalySound = playAnomalySound;
 window.drawAnomalyShadow = drawAnomalyShadow;
 window.drawAnomalyChair = drawAnomalyChair;
 window.drawAnomalyDoor = drawAnomalyDoor;

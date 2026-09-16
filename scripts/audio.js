@@ -18,6 +18,7 @@ let humOscillator2 = null; // Фоновый гул (осциллятор 2)
 let lastWhisperTime = 0; // Время последнего звука шёпота
 let lastClickTime = 0; // Время последнего клика
 let lastMissClickTime = 0; // Время последнего промаха по аномалии
+let lastStepTime = 0; // Время последнего шага монстра
 
 // Переменные для фоновой музыки (ambient)
 let ambientOsc1 = null; // Низкий дрон (sine, 55 Гц)
@@ -585,6 +586,206 @@ function stopAmbient() {
     currentAmbientMode = null;
 }
 
+// ============================================
+// Новые звуки для аномалий
+// ============================================
+
+function playRustle() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    if (now - lastWhisperTime < 0.2) return;
+    lastWhisperTime = now;
+
+    try {
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.5);
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.3;
+        }
+
+        const shum = audioCtx.createBufferSource();
+        shum.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1500;
+        filter.Q.value = 2;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+        shum.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+        shum.start(now);
+        shum.stop(now + 0.5);
+    } catch (e) {
+        console.warn('playRustle error:', e);
+    }
+}
+
+function playCreak() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+
+    try {
+        const osc1 = audioCtx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(200, now);
+        osc1.frequency.exponentialRampToValueAtTime(350, now + 0.4);
+
+        const osc2 = audioCtx.createOscillator();
+        osc2.type = 'triangle';
+        osc2.frequency.value = 180;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(masterGain);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.4);
+        osc2.stop(now + 0.4);
+    } catch (e) {
+        console.warn('playCreak error:', e);
+    }
+}
+
+function playWoodTap() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+
+    try {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = 180;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + 0.15);
+    } catch (e) {
+        console.warn('playWoodTap error:', e);
+    }
+}
+
+function playBreath() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+
+    try {
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.7);
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.3;
+        }
+
+        const shum = audioCtx.createBufferSource();
+        shum.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 600;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+
+        shum.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+        shum.start(now);
+        shum.stop(now + 0.7);
+    } catch (e) {
+        console.warn('playBreath error:', e);
+    }
+}
+
+function playTick() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+
+    try {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.value = 1200;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + 0.03);
+    } catch (e) {
+        console.warn('playTick error:', e);
+    }
+}
+
+function playStep() {
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    if (now - lastStepTime < 0.4) return;
+    lastStepTime = now;
+
+    try {
+        // Основной тон — низкий sine
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 50;
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.35, now + 0.003);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start(now);
+        osc.stop(now + 0.25);
+
+        // Белый шум через lowpass
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.1);
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.3;
+        }
+
+        const shum = audioCtx.createBufferSource();
+        shum.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 300;
+
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.15, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+        shum.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(masterGain);
+        shum.start(now);
+        shum.stop(now + 0.1);
+    } catch (e) {
+        console.warn('playStep error:', e);
+    }
+}
+
 window.initAudio = initAudio;
 window.startHum = startHum;
 window.stopHum = stopHum;
@@ -602,3 +803,9 @@ window.setAmbientMode = setAmbientMode;
 window.stopAmbient = stopAmbient;
 window.startMusic = startMusic;
 window.stopMusic = stopMusic;
+window.playRustle = playRustle;
+window.playCreak = playCreak;
+window.playWoodTap = playWoodTap;
+window.playBreath = playBreath;
+window.playTick = playTick;
+window.playStep = playStep;
