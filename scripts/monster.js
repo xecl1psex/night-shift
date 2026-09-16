@@ -71,6 +71,7 @@ function monsterTick(dt) {
         m.freezeTimer += dt;
         if (m.freezeTimer >= cfg.monsterTeleportAfter) {
             m.position = randomCameraExcept(GameState.player.currentCam);
+            if (typeof playStep === 'function') playStep();
             m.progress += 10;
             if (m.progress > 100) m.progress = 100;
             m.freezeTimer = 0;
@@ -93,6 +94,7 @@ function monsterTick(dt) {
     if (m.state === 'HIDDEN' && m.progress >= 20) {
         m.state = 'WANDER';
         m.position = randomCamera();
+        if (typeof playStep === 'function') playStep();
         m.stepCooldown = cfg.moveInterval;
     }
 
@@ -100,9 +102,11 @@ function monsterTick(dt) {
         if (m.progress >= 50) {
             m.state = 'HUNT';
             m.position = 'CAM1';
+            if (typeof playStep === 'function') playStep();
             m.stepCooldown = cfg.moveInterval;
         } else if (m.stepCooldown <= 0) {
             m.position = nextCamera(m.position);
+            if (typeof playStep === 'function') playStep();
             m.stepCooldown = cfg.moveInterval;
         }
     }
@@ -122,6 +126,7 @@ function monsterTick(dt) {
             if (typeof playKnock === 'function') playKnock();
         } else if (m.stepCooldown <= 0) {
             m.position = nextCameraInHunt(m.position);
+            if (typeof playStep === 'function') playStep();
             m.stepCooldown = cfg.moveInterval;
         }
     }
