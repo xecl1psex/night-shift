@@ -176,9 +176,11 @@ function flashScreen(color) {
 }
 
 function updateGameTime() {
-    GameState.gameHour = Math.floor(GameState.elapsedTime / 60);
-    GameState.gameMinute = Math.floor(GameState.elapsedTime % 60);
-    if (GameState.gameHour >= 6) {
+    const cfg = getNightConfig(GameState.currentNight);
+    const hourDuration = cfg.nightDuration / 6;
+    GameState.gameHour = Math.min(5, Math.floor(GameState.elapsedTime / hourDuration));
+    GameState.gameMinute = Math.floor((GameState.elapsedTime % hourDuration) / hourDuration * 60);
+    if (GameState.elapsedTime >= cfg.nightDuration) {
         endNight(true);
     }
 }
