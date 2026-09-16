@@ -17,7 +17,6 @@ let humGain = null; // Громкость фонового гула
 let humOscillator2 = null; // Фоновый гул (осциллятор 2)
 let lastWhisperTime = 0; // Время последнего звука шёпота
 let lastClickTime = 0; // Время последнего клика
-let lastMissClickTime = 0; // Время последнего промаха по аномалии
 let lastStepTime = 0; // Время последнего шага монстра
 
 // Переменные для фоновой музыки (ambient)
