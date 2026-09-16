@@ -76,8 +76,8 @@ function bindMenuButtons() {
 
     const btnNextNight = document.getElementById('btn-next-night');
     if (btnNextNight) btnNextNight.addEventListener('click', () => {
-        if (GameState.currentNight >= 12) {
-            GameState.currentNight = 12;
+        if (GameState.currentNight >= 5) {
+            GameState.currentNight = 5;
         } else {
             GameState.currentNight++;
         }
@@ -99,7 +99,7 @@ function showIntroText(night) {
         'Здание старое. Камеры работают с помехами.',
         'Твоя задача — фиксировать аномалии.',
         'Не пропускай их. И не смотри слишком долго.',
-        'Смена длится 6 часов.',
+        'Смена длится до утра.',
         'Удачи.'
     ];
 
