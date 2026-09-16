@@ -178,7 +178,7 @@ html, body {
 #cam-label {
     position: absolute;
     top: 10px;
-    left: 10px;
+    right: 10px;
     font-size: 14px;
     color: #39ff14;
     letter-spacing: 2px;

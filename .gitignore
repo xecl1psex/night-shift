@@ -13,7 +13,7 @@ target/
 venv/
 node_modules/
 .julia/
-.zig-cache/
+zig-cache/
 
 # Logs and temp files
 *.log
@@ -32,14 +32,18 @@ node_modules/
 *.swp
 *.swo
 
-# Coverage reports
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage
 coverage/
 htmlcov/
 .coverage
 
-# OS specific
-.DS_Store
-Thumbs.db
+# Python specific
+.mypy_cache/
+.pytest_cache/
 
 # Compressed files
 *.zip

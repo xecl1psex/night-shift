@@ -192,34 +192,102 @@ function drawRoomCAM2(ctx) {
 function drawRoomCAM3(ctx) {
     drawBase(ctx);
 
-    ctx.fillStyle = '#2a1a10';
-    ctx.fillRect(200, 380, 8, 40);
-    ctx.fillRect(440, 380, 8, 40);
-    ctx.fillRect(200, 300, 8, 20);
-    ctx.fillRect(440, 300, 8, 20);
-
-    ctx.fillStyle = '#4a3520';
-    ctx.fillRect(190, 300, 260, 20);
-    ctx.fillStyle = '#5a4530';
-    ctx.fillRect(190, 300, 260, 4);
+    // Тень под столом и стульями
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(190, 320, 260, 60);
+    ctx.beginPath();
+    ctx.ellipse(320, 415, 180, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
 
-    const chairs = [
-        {x: 140, y: 320},
-        {x: 500, y: 320},
-        {x: 240, y: 260},
-        {x: 400, y: 260}
-    ];
-    for (const s of chairs) {
-        ctx.fillStyle = '#3a2a1a';
-        ctx.fillRect(s.x, s.y, 40, 40);
-        ctx.fillStyle = '#2a1a10';
-        ctx.fillRect(s.x, s.y - 50, 40, 50);
-        ctx.strokeStyle = '#1a0a00';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(s.x, s.y, 40, 40);
-    }
+    // Задние стулья (стоят позади стола, видны только спинки)
+    // Задний левый
+    ctx.fillStyle = '#1e1208';
+    ctx.fillRect(215, 235, 50, 8);       // верх спинки
+    ctx.fillRect(215, 235, 6, 55);       // левая ножка спинки
+    ctx.fillRect(259, 235, 6, 55);       // правая ножка спинки
+    ctx.fillRect(220, 260, 40, 4);       // средняя перекладина
+
+    // Задний правый
+    ctx.fillStyle = '#1e1208';
+    ctx.fillRect(375, 235, 50, 8);
+    ctx.fillRect(375, 235, 6, 55);
+    ctx.fillRect(419, 235, 6, 55);
+    ctx.fillRect(380, 260, 40, 4);
+
+    // Стол — столешница в перспективе
+    // Задняя кромка (уже)
+    ctx.fillStyle = '#3a2818';
+    ctx.beginPath();
+    ctx.moveTo(200, 320);
+    ctx.lineTo(440, 320);
+    ctx.lineTo(455, 330);
+    ctx.lineTo(185, 330);
+    ctx.closePath();
+    ctx.fill();
+
+    // Основная поверхность стола
+    ctx.fillStyle = '#4a3520';
+    ctx.beginPath();
+    ctx.moveTo(185, 330);
+    ctx.lineTo(455, 330);
+    ctx.lineTo(470, 365);
+    ctx.lineTo(170, 365);
+    ctx.closePath();
+    ctx.fill();
+
+    // Блик на столешнице
+    ctx.fillStyle = '#5a4530';
+    ctx.beginPath();
+    ctx.moveTo(190, 332);
+    ctx.lineTo(450, 332);
+    ctx.lineTo(458, 348);
+    ctx.lineTo(182, 348);
+    ctx.closePath();
+    ctx.fill();
+
+    // Передняя кромка стола (толстая, объёмная)
+    ctx.fillStyle = '#2a1a10';
+    ctx.fillRect(170, 363, 300, 10);
+
+    // Передние ножки стола — толстые
+    ctx.fillStyle = '#1e1208';
+    ctx.fillRect(180, 373, 14, 45);
+    ctx.fillRect(446, 373, 14, 45);
+
+    // Задние ножки стола (видны чуть выше)
+    ctx.fillStyle = '#0f0804';
+    ctx.fillRect(205, 340, 10, 30);
+    ctx.fillRect(425, 340, 10, 30);
+
+    // Передний левый стул
+    // Ножки
+    ctx.fillStyle = '#2a1a10';
+    ctx.fillRect(85, 370, 8, 50);        // передняя левая
+    ctx.fillRect(135, 370, 8, 50);       // передняя правая
+    ctx.fillRect(90, 355, 6, 30);        // задняя левая
+    ctx.fillRect(130, 355, 6, 30);       // задняя правая
+    // Сиденье
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(80, 360, 65, 14);
+    // Спинка
+    ctx.fillStyle = '#1e1208';
+    ctx.fillRect(80, 280, 10, 82);       // вертикаль
+    ctx.fillRect(80, 280, 65, 10);       // верхняя перекладина
+    ctx.fillRect(135, 280, 10, 82);      // вторая вертикаль
+    ctx.fillRect(85, 305, 55, 6);        // средняя перекладина
+
+    // Передний правый стул
+    ctx.fillStyle = '#2a1a10';
+    ctx.fillRect(495, 370, 8, 50);
+    ctx.fillRect(545, 370, 8, 50);
+    ctx.fillRect(500, 355, 6, 30);
+    ctx.fillRect(540, 355, 6, 30);
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(490, 360, 65, 14);
+    ctx.fillStyle = '#1e1208';
+    ctx.fillRect(490, 280, 10, 82);
+    ctx.fillRect(490, 280, 65, 10);
+    ctx.fillRect(545, 280, 10, 82);
+    ctx.fillRect(495, 305, 55, 6);
 
     ctx.fillStyle = '#2a2a2a';
     ctx.fillRect(40, 200, 80, 200);
@@ -258,6 +326,121 @@ function drawRoomCAM3(ctx) {
 function drawRoomCAM4(ctx) {
     drawBase(ctx);
 
+    // Диван слева — реалистичнее
+    // Тень под диваном
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(110, 410, 80, 12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Спинка дивана
+    ctx.fillStyle = '#1e1210';
+    ctx.fillRect(30, 300, 160, 65);
+    // Верхняя кромка спинки (блик)
+    ctx.fillStyle = '#3a2525';
+    ctx.fillRect(30, 300, 160, 6);
+    // Подушки на спинке
+    ctx.fillStyle = '#2e1c1c';
+    ctx.fillRect(36, 310, 48, 50);
+    ctx.fillRect(88, 310, 48, 50);
+    ctx.fillRect(140, 310, 46, 50);
+    // Швы между подушками
+    ctx.strokeStyle = '#0f0808';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(86, 310); ctx.lineTo(86, 360);
+    ctx.moveTo(138, 310); ctx.lineTo(138, 360);
+    ctx.stroke();
+
+    // Сиденье дивана
+    ctx.fillStyle = '#2a1a1a';
+    ctx.fillRect(30, 360, 160, 30);
+    // Подушки на сиденье
+    ctx.fillStyle = '#3a2020';
+    ctx.fillRect(34, 364, 48, 24);
+    ctx.fillRect(86, 364, 48, 24);
+    ctx.fillRect(138, 364, 48, 24);
+    // Швы
+    ctx.strokeStyle = '#0f0808';
+    ctx.beginPath();
+    ctx.moveTo(84, 364); ctx.lineTo(84, 388);
+    ctx.moveTo(136, 364); ctx.lineTo(136, 388);
+    ctx.stroke();
+
+    // Ножки дивана
+    ctx.fillStyle = '#0a0505';
+    ctx.fillRect(38, 390, 8, 20);
+    ctx.fillRect(178, 390, 8, 20);
+
+    // Подлокотники
+    ctx.fillStyle = '#2e1c1c';
+    ctx.fillRect(24, 330, 14, 60);
+    ctx.fillRect(184, 330, 14, 60);
+
+    // Ресепшн — стойка с объёмом
+    // Тень под стойкой
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(120, 395, 420, 12);
+
+    // Задняя часть стойки (столешница сверху)
+    ctx.fillStyle = '#4a3520';
+    ctx.beginPath();
+    ctx.moveTo(130, 310);
+    ctx.lineTo(510, 310);
+    ctx.lineTo(520, 330);
+    ctx.lineTo(120, 330);
+    ctx.closePath();
+    ctx.fill();
+
+    // Блик на столешнице
+    ctx.fillStyle = '#5a4530';
+    ctx.beginPath();
+    ctx.moveTo(140, 312);
+    ctx.lineTo(500, 312);
+    ctx.lineTo(505, 322);
+    ctx.lineTo(135, 322);
+    ctx.closePath();
+    ctx.fill();
+
+    // Передняя стенка ресепшн
+    ctx.fillStyle = '#2a1e10';
+    ctx.beginPath();
+    ctx.moveTo(120, 330);
+    ctx.lineTo(520, 330);
+    ctx.lineTo(530, 400);
+    ctx.lineTo(110, 400);
+    ctx.closePath();
+    ctx.fill();
+
+    // Вертикальные рёбра (декор)
+    ctx.strokeStyle = '#1a1008';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 8; i++) {
+        const xTop = 140 + i * 50;
+        const xBot = 130 + i * 52;
+        ctx.beginPath();
+        ctx.moveTo(xTop, 330);
+        ctx.lineTo(xBot, 400);
+        ctx.stroke();
+    }
+
+    // Тень под столешницей (внутренний объём)
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(140, 332, 360, 6);
+
+    // Монитор на ресепшн
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(280, 270, 80, 50);
+    ctx.strokeStyle = '#3a3a3a';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(280, 270, 80, 50);
+    // Свечение экрана монитора
+    ctx.fillStyle = 'rgba(57,255,20,0.15)';
+    ctx.fillRect(284, 274, 72, 42);
+    // Стойка монитора
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(314, 320, 12, 10);
+
     ctx.fillStyle = '#1a1a1a';
     ctx.fillRect(120, 80, 400, 220);
 
@@ -274,20 +457,6 @@ function drawRoomCAM4(ctx) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('S', 320, 152);
-
-    ctx.fillStyle = '#3a2a1a';
-    ctx.fillRect(120, 300, 400, 120);
-    ctx.fillStyle = '#4a3520';
-    ctx.fillRect(120, 300, 400, 15);
-    ctx.fillStyle = '#5a4530';
-    ctx.fillRect(120, 300, 400, 4);
-
-    ctx.fillStyle = '#2a1a1a';
-    ctx.fillRect(40, 340, 140, 80);
-    ctx.fillStyle = '#3a2a2a';
-    ctx.fillRect(50, 350, 40, 60);
-    ctx.fillRect(95, 350, 40, 60);
-    ctx.fillRect(140, 350, 30, 60);
 
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(170, 100, 300, 160);
