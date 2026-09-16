@@ -155,3 +155,4 @@ window.showEnding = showEnding;
 window.nightComplete = nightComplete;
 window.startNightReal = startNightReal;
 window.startWinSequence = startWinSequence;
+window.endNight = endNight;
