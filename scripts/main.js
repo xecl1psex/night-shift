@@ -193,6 +193,8 @@ function updateGameTime() {
 
 function endNight(success) {
     if (success) {
+        // Остановить игровые таймеры перед показом экрана завершения
+        stopTick();
         nightComplete();
     }
 }
@@ -228,10 +230,13 @@ function gameLoop(now) {
     if (GameState.mode === 'PLAYING') {
         GameState.elapsedTime += dt;
         updateGameTime();
-        updateEnergy(dt);
-        updateAnomalies(dt);
-        GameState.scanY += 2;
-        if (GameState.scanY > 480) GameState.scanY = -20;
+        // Если режим изменился (например, ночь завершена), не обновляем остальное
+        if (GameState.mode === 'PLAYING') {
+            updateEnergy(dt);
+            updateAnomalies(dt);
+            GameState.scanY += 2;
+            if (GameState.scanY > 480) GameState.scanY = -20;
+        }
     }
 
     render();
