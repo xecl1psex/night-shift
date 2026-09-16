@@ -372,3 +372,38 @@ html, body {
     pointer-events: none;
     z-index: 9996;
 }
+
+#tutorial-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 500;
+    pointer-events: none;
+    display: none;
+    text-align: center;
+    background: rgba(10, 10, 10, 0.85);
+    border: 2px solid #39ff14;
+    padding: 20px 40px;
+    box-shadow: 0 0 30px rgba(57, 255, 20, 0.4);
+    max-width: 600px;
+}
+
+#tutorial-overlay.show {
+    display: block;
+    animation: tutorial-fade 0.5s ease-in-out;
+}
+
+#tutorial-text {
+    color: #39ff14;
+    font-family: monospace;
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px #39ff14;
+}
+
+@keyframes tutorial-fade {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
