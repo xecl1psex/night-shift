@@ -45,7 +45,7 @@ function nightComplete() {
         return;
     }
 
-    const screen = document.getElementById('screen-night-complete');
+    const screen = document.getElementById('screen-night_complete');
     if (!screen) return;
 
     const nightNum = document.getElementById('complete-night');
