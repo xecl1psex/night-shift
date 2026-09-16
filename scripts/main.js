@@ -185,6 +185,12 @@ function updateGameTime() {
     }
 }
 
+function endNight(success) {
+    if (success) {
+        nightComplete();
+    }
+}
+
 function startTick() {
     if (GameState.tickInterval) clearInterval(GameState.tickInterval);
     GameState.tickInterval = setInterval(() => {
