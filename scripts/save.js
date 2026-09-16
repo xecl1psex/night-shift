@@ -41,6 +41,7 @@ function loadGame() {
         const raw = localStorage.getItem(SAVE_KEY);
         if (!raw) return Object.assign({}, DEFAULT_SAVE);
         const data = JSON.parse(raw);
+        console.log('[LOAD] Загружено:', data);
         return Object.assign({}, DEFAULT_SAVE, data);
     } catch (e) {
         return Object.assign({}, DEFAULT_SAVE);
@@ -51,6 +52,7 @@ function resetGame() {
     try {
         localStorage.removeItem(SAVE_KEY);
     } catch (e) {}
+    console.log('[RESET] Прогресс сброшен');
     return Object.assign({}, DEFAULT_SAVE);
 }
 
@@ -72,6 +74,7 @@ function saveProgress(nextNight, stats) {
         totalDeaths: current.totalDeaths + (stats.deaths || 0),
         lastPlayed: Date.now()
     };
+    console.log('[SAVE] Сохранено:', updated);
     return saveGame(updated);
 }
 
