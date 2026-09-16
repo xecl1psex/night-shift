@@ -257,6 +257,10 @@ function render() {
     if (GameState.monster && GameState.monster.state === 'DOOR' && GameState.dom.ctxActive) {
         drawMonsterDoor(GameState.dom.ctxActive, GameState.monster.side === 'BOTH' ? 'LEFT' : GameState.monster.side);
     }
+
+    if (GameState.player && GameState.player.lightFlashTimer > 0) {
+        renderLightFlash(GameState.dom.ctxActive);
+    }
 }
 
 function renderActiveCamera(ctx) {
@@ -437,5 +441,51 @@ function stopTutorial() {
 
 window.startTutorial = startTutorial;
 window.stopTutorial = stopTutorial;
+
+function renderLightFlash(ctx) {
+    if (!ctx) return;
+    const m = GameState.monster;
+    if (!m) return;
+
+    // Общее яркое затемнение — свет "включён"
+    ctx.fillStyle = 'rgba(255, 248, 220, 0.08)';
+    ctx.fillRect(0, 0, 640, 480);
+
+    // Если монстр у двери — рисуем его силуэт
+    if (m.state === 'DOOR') {
+        const side = m.side === 'BOTH' ? 'LEFT' : m.side;
+        const x = side === 'LEFT' ? 120 : 520;
+
+        // Тёмный силуэт с подсветкой
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(x - 40, 180, 80, 240);
+
+        // Голова
+        ctx.beginPath();
+        ctx.arc(x, 160, 35, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Белые светящиеся глаза
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath();
+        ctx.arc(x - 12, 158, 5, 0, Math.PI * 2);
+        ctx.arc(x + 12, 158, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Свечение вокруг глаз
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.beginPath();
+        ctx.arc(x - 12, 158, 12, 0, Math.PI * 2);
+        ctx.arc(x + 12, 158, 12, 0, Math.PI * 2);
+        ctx.fill();
+    } else {
+        // Никого нет — просто пустое светлое пятно у дверей
+        ctx.fillStyle = 'rgba(255,248,220,0.1)';
+        ctx.fillRect(60, 300, 120, 180);
+        ctx.fillRect(460, 300, 120, 180);
+    }
+}
+
+window.renderLightFlash = renderLightFlash;
 
 document.addEventListener('DOMContentLoaded', init);
