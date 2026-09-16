@@ -37,8 +37,10 @@ function nightComplete() {
     GameState.humStarted = false;
 
     const currentNight = GameState.currentNight;
+    console.log('[NIGHT] Ночь', currentNight, 'пройдена. Статы:', GameState.stats);
+
     if (currentNight >= 12) {
-        showEnding('win');
+        startWinSequence();
         return;
     }
 
@@ -60,6 +62,79 @@ function nightComplete() {
     setMode('NIGHT_COMPLETE');
 }
 
+function startWinSequence() {
+    const container = document.getElementById('win-text');
+    if (!container) return;
+    container.innerHTML = '';
+    container.style.opacity = '0';
+
+    const canvas = GameState.dom.jumpscareCanvas;
+    const ctxJ = GameState.dom.jumpscareCtx;
+
+    setTimeout(() => {
+        if (!canvas || !ctxJ) return;
+        canvas.style.display = 'block';
+        ctxJ.fillStyle = '#000000';
+        ctxJ.fillRect(0, 0, 1280, 720);
+
+        setTimeout(() => {
+            ctxJ.fillStyle = 'rgba(255,255,255,0.15)';
+            ctxJ.fillRect(0, 0, 1280, 720);
+
+            ctxJ.save();
+            ctxJ.translate(640, 360);
+            ctxJ.fillStyle = '#0a0a0a';
+            ctxJ.beginPath();
+            ctxJ.ellipse(0, 0, 180, 260, 0, 0, Math.PI * 2);
+            ctxJ.fill();
+            ctxJ.fillStyle = '#ffffff';
+            ctxJ.beginPath();
+            ctxJ.arc(-60, -70, 25, 0, Math.PI * 2);
+            ctxJ.arc(60, -70, 25, 0, Math.PI * 2);
+            ctxJ.fill();
+            ctxJ.restore();
+
+            setTimeout(() => {
+                ctxJ.fillStyle = 'rgba(0,0,0,0.85)';
+                ctxJ.fillRect(0, 0, 1280, 720);
+
+                setTimeout(() => {
+                    canvas.style.display = 'none';
+                    container.style.opacity = '1';
+                    container.style.transition = 'opacity 2s';
+
+                    const lines = [
+                        'Ты дожил до утра.',
+                        '',
+                        'В серверной ты нашёл журнал смен.',
+                        'Все операторы до тебя уволились по собственному желанию.',
+                        '',
+                        'Последняя запись — твоё имя.',
+                        'Дата — завтра.'
+                    ];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        setTimeout(() => {
+                            container.innerHTML += lines[i] + '\n';
+                        }, i * 1500);
+                    }
+
+                    setTimeout(() => {
+                        container.innerHTML += '\n\nКОНЕЦ';
+                        if (typeof playStatic === 'function') playStatic(1.0);
+                    }, lines.length * 1500 + 800);
+
+                    setTimeout(() => {
+                        resetGame();
+                        setMode('MENU');
+                        initMenu();
+                    }, lines.length * 1500 + 5000);
+                }, 800);
+            }, 1200);
+        }, 1500);
+    }, 500);
+}
+
 function startNightReal() {
     resetNightState();
     GameState.player = createPlayer();
@@ -77,3 +152,4 @@ function startNightReal() {
 window.showEnding = showEnding;
 window.nightComplete = nightComplete;
 window.startNightReal = startNightReal;
+window.startWinSequence = startWinSequence;
