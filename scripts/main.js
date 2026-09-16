@@ -383,4 +383,48 @@ window.stopTick = stopTick;
 window.updateGameTime = updateGameTime;
 window.lastMissClickTime = lastMissClickTime;
 
+// Туториал для первой ночи
+let tutorialTimeouts = [];
+
+function startTutorial() {
+    if (GameState.currentNight !== 1) return;
+
+    const overlay = document.getElementById('tutorial-overlay');
+    const text = document.getElementById('tutorial-text');
+    if (!overlay || !text) return;
+
+    const steps = [
+        { delay: 3000,  duration: 4000, text: 'Ты — оператор камер.\nКлик по мини-экрану справа — переключить камеру.' },
+        { delay: 9000,  duration: 5000, text: 'На камерах появляются аномалии.\nЭто тени, стулья не на месте, надписи.\nКлик по аномалии — зафиксировать.' },
+        { delay: 16000, duration: 5000, text: 'Если долго не фиксировать — монстр приблизится.\nСтук в дверь — закрой её клавишами A (левая) или D (правая).' },
+        { delay: 23000, duration: 5000, text: 'Дожить до 06:00 — ночь пройдена.\nУдачи.' }
+    ];
+
+    tutorialTimeouts.forEach(t => clearTimeout(t));
+    tutorialTimeouts = [];
+
+    for (const step of steps) {
+        const t1 = setTimeout(() => {
+            text.innerText = step.text;
+            overlay.classList.add('show');
+        }, step.delay);
+
+        const t2 = setTimeout(() => {
+            overlay.classList.remove('show');
+        }, step.delay + step.duration);
+
+        tutorialTimeouts.push(t1, t2);
+    }
+}
+
+function stopTutorial() {
+    tutorialTimeouts.forEach(t => clearTimeout(t));
+    tutorialTimeouts = [];
+    const overlay = document.getElementById('tutorial-overlay');
+    if (overlay) overlay.classList.remove('show');
+}
+
+window.startTutorial = startTutorial;
+window.stopTutorial = stopTutorial;
+
 document.addEventListener('DOMContentLoaded', init);

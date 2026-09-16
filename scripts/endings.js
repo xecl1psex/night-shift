@@ -33,6 +33,7 @@ function showEnding(type) {
 }
 
 function nightComplete() {
+    if (typeof stopTutorial === 'function') stopTutorial();
     stopHum();
     GameState.humStarted = false;
 
@@ -147,6 +148,7 @@ function startNightReal() {
         startHum();
         GameState.humStarted = true;
     }
+    if (typeof startTutorial === 'function') startTutorial();
 }
 
 window.showEnding = showEnding;

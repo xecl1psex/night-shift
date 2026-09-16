@@ -155,6 +155,7 @@ function resumeGame() {
 }
 
 function quitToMenu() {
+    if (typeof stopTutorial === 'function') stopTutorial();
     if (typeof stopTick === 'function') stopTick();
     if (typeof stopHum === 'function') stopHum();
     GameState.humStarted = false;
