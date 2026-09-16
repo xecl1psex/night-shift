@@ -31,16 +31,16 @@ function updateEnergy(dt) {
     if (p.energy <= 0) return;
 
     const cfg = getNightConfig(GameState.currentNight);
-    // Базовый расход снижен с 0.08 до 0.05 для 6-минутной ночи
-    let drain = 0.05;
+    // Базовый расход увеличен до 0.35 для 2-минутной ночи
+    let drain = 0.35;
 
-    // Расход света снижен с 0.4 до 0.25
+    // Расход света увеличен до 0.6
     if (p.lightOn) {
-        drain += 0.25 * cfg.energyMultiplier;
+        drain += 0.6 * cfg.energyMultiplier;
     }
-    // Расход дверей снижен с 0.3 до 0.18 каждая
-    if (p.doorLeft) drain += 0.18;
-    if (p.doorRight) drain += 0.18;
+    // Расход дверей увеличен до 0.5 каждая
+    if (p.doorLeft) drain += 0.5;
+    if (p.doorRight) drain += 0.5;
 
     p.energy -= drain * dt;
 

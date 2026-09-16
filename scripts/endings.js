@@ -40,7 +40,7 @@ function nightComplete() {
     const currentNight = GameState.currentNight;
     console.log('[NIGHT] Ночь', currentNight, 'пройдена. Статы:', GameState.stats);
 
-    if (currentNight >= 12) {
+    if (currentNight >= 5) {
         startWinSequence();
         return;
     }
@@ -107,6 +107,7 @@ function startWinSequence() {
                     const lines = [
                         'Ты дожил до утра.',
                         '',
+                        'Пять ночей позади.',
                         'В серверной ты нашёл журнал смен.',
                         'Все операторы до тебя уволились по собственному желанию.',
                         '',
