@@ -8,6 +8,7 @@
 // ============================================
 
 let lastFrameTime = 0; // Время последнего кадра для расчёта delta time
+let lastMissClickTime = 0; // Время последнего промаха по аномалии
 
 function init() {
     GameState.dom.canvasActive = document.getElementById('active-cam');
@@ -396,7 +397,6 @@ window.flashScreen = flashScreen;
 window.startTick = startTick;
 window.stopTick = stopTick;
 window.updateGameTime = updateGameTime;
-window.lastMissClickTime = lastMissClickTime;
 
 // Туториал для первой ночи
 let tutorialTimeouts = [];
